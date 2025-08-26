@@ -1,29 +1,18 @@
 {
-  "name": "url",
+  "name": "url-shortener",
   "version": "1.0.0",
-  "description": "",
   "main": "app.js",
+  "type": "module",
   "scripts": {
-     "start": "node app.js",
-  "dev": "nodemon app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ubfplank/url.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ubfplank/url/issues"
-  },
-  "homepage": "https://github.com/ubfplank/url#readme",
   "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.1",
-    "express": "^5.1.0",
-    "mongoose": "^8.18.0",
-    "nanoid": "^5.1.5",
-    "shortid": "^2.2.17"
+    "express": "^4.18.2",
+    "mongoose": "^7.4.0",
+    "dotenv": "^17.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

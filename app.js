@@ -1,46 +1,29 @@
 import express from "express";
 import mongoose from "mongoose";
-import { nanoid } from "nanoid";
 import dotenv from "dotenv";
-import Url from './models/Url.js';
+import Url from "./models/Url.js"; // modelo da URL
 
 dotenv.config();
-const Url = require('./models/Url');
-iOjGFdmTnG3fZc6c
 
 const app = express();
 app.use(express.json());
 
-// conectar ao MongoDB
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB conectado"))
+  .catch(err => console.log(err));
 
-// schema do encurtador
-const urlSchema = new mongoose.Schema({
-  shortId: { type: String, unique: true },
-  originalUrl: String,
+app.get("/", (req, res) => {
+  res.send("Servidor rodando!");
 });
 
-const Url = mongoose.model("Url", urlSchema);
-
-// rota para encurtar
+// rota para criar URL curta de teste
 app.post("/shorten", async (req, res) => {
   const { originalUrl } = req.body;
-  const shortId = nanoid(7);
-
-  const newUrl = await Url.create({ shortId, originalUrl });
-  res.json({ shortUrl: `${process.env.BASE_URL}/${shortId}`, originalUrl });
+  const shortUrl = Math.random().toString(36).substring(2, 8);
+  const newUrl = new Url({ originalUrl, shortUrl });
+  await newUrl.save();
+  res.json(newUrl);
 });
 
-// rota para redirecionar
-app.get("/:shortId", async (req, res) => {
-  const { shortId } = req.params;
-  const url = await Url.findOne({ shortId });
+app.listen(process.env.PORT || 3000, () => console.log("Servidor rodando na porta 3000"));
 
-  if (url) {
-    res.redirect(url.originalUrl);
-  } else {
-    res.status(404).json({ error: "URL não encontrada" });
-  }
-});
-
-app.listen(3000, () => console.log("Servidor rodando em http://localhost:3000"));
