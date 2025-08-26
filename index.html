@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Encurtador de URL</title>
+</head>
+<body>
+  <h1>Encurtador de URL</h1>
+  <input type="text" id="url" placeholder="Cole a URL aqui" size="50">
+  <button onclick="shortenUrl()">Encurtar</button>
+  <p id="result"></p>
+
+  <script>
+    async function shortenUrl() {
+      const url = document.getElementById('url').value;
+      const res = await fetch('/shorten', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ originalUrl: url })
+      });
+      const data = await res.json();
+      document.getElementById('result').innerHTML = data.shortUrl || data.error;
+    }
+  </script>
+</body>
+</html>
