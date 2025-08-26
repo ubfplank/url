@@ -7,6 +7,8 @@ const urlSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-const Url = mongoose.model('Url', urlSchema);
+import Url from './models/Url.js';
+const Url = require('./models/Url');
+
 
 export default Url;
