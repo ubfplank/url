@@ -1,47 +1,46 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+import express from "express";
+import mongoose from "mongoose";
+import { nanoid } from "nanoid";
+import dotenv from "dotenv";
+import Url from './models/Url.js';
+
+dotenv.config();
 const Url = require('./models/Url');
 
+
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB conectado'))
-.catch(err => console.log(err));
+// conectar ao MongoDB
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
-app.post('/shorten', async (req, res) => {
+// schema do encurtador
+const urlSchema = new mongoose.Schema({
+  shortId: { type: String, unique: true },
+  originalUrl: String,
+});
+
+const Url = mongoose.model("Url", urlSchema);
+
+// rota para encurtar
+app.post("/shorten", async (req, res) => {
   const { originalUrl } = req.body;
-  if (!originalUrl) return res.status(400).json({ error: 'URL é obrigatória' });
+  const shortId = nanoid(7);
 
-  const url = new Url({ originalUrl });
-  await url.save();
-
-  res.json({ shortUrl: `${process.env.BASE_URL}/${url.shortUrl}` });
+  const newUrl = await Url.create({ shortId, originalUrl });
+  res.json({ shortUrl: `${process.env.BASE_URL}/${shortId}`, originalUrl });
 });
 
-app.get('/:shortUrl', async (req, res) => {
-  const { shortUrl } = req.params;
-  const url = await Url.findOne({ shortUrl });
+// rota para redirecionar
+app.get("/:shortId", async (req, res) => {
+  const { shortId } = req.params;
+  const url = await Url.findOne({ shortId });
 
-  if (!url) return res.status(404).json({ error: 'URL não encontrada' });
-
-  url.clicks++;
-  await url.save();
-
-  res.redirect(url.originalUrl);
+  if (url) {
+    res.redirect(url.originalUrl);
+  } else {
+    res.status(404).json({ error: "URL não encontrada" });
+  }
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Servidor rodando na porta ${process.env.PORT}`);
-});
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-
-
+app.listen(3000, () => console.log("Servidor rodando em http://localhost:3000"));
